@@ -1,42 +1,46 @@
-import { useState } from 'react'
+// state logic is held in App.js (it will become clearer soon why that is),we need to pass our entire toDoList down to our <ToDoList /> component.
 
-function TodoList() {
-    const [todos, setTodos] = useState([]);
-    const [inputValue, setInputValue] = useState();
+import { useState } from 'react';
 
-    function handleChange(e){
-        setInputValue(e.target.value)
-    }
+import './assets/App.css'
+import './assets/index.css'
+import data from './data/data.json'
+import Header from './components/Header';
+import ToDoList from './components/ToDoList'
+import ToDoForm from './components/ToDoForm'
 
-    function handleSubmit(e) {
-        e.preventDefault(); 
-        setTodos([...todos, inputValue]); 
-        setInputValue("");
-    }
 
-    function handleDelete(index){
-        const newTodos = [...todos];
-        newTodos.splice(index, 1);
-        setTodos(newTodos);
-    }
-    
+function App() {
+  
+  const [ toDoList, setToDoList ] = useState(data);
 
-    return (
-        <>
-            <h1>ddd</h1>
-            <form onSubmit={handleSubmit}>
-                <input type='text' value={inputValue} onChange={handleChange}/>
-                <button>Add 3 Todo</button>
-            </form>
-            <ul>
-                {todos.map((todo, index)=>(
-                    <li key={index}>{todo}
-                        <button onClick={()=>handleDelete(index)}>Delete</button>
-                    </li>
-                ))}
-            </ul>
-        </>
-    )
+  const handleToggle = (id) => {
+    let mapped = toDoList.map(task => {
+      return task.id === Number(id) ? { ...task, complete: !task.complete } : { ...task};
+    });
+    setToDoList(mapped);
+  }
+
+  const handleFilter = () => {
+    let filtered = toDoList.filter(task => {
+      return !task.complete;
+    });
+    setToDoList(filtered);
+  }
+
+  const addTask = (userInput ) => {
+    let copy = [...toDoList];
+    copy = [...copy, { id: toDoList.length + 1, task: userInput, complete: false }];
+    setToDoList(copy);
+  }
+
+  return (
+    <div className="App">
+      <Header />
+      <ToDoList toDoList={toDoList} handleToggle={handleToggle} handleFilter={handleFilter}/>
+      <ToDoForm addTask={addTask}/>
+    </div>
+  );
 }
 
-export default TodoList
+export default App;
